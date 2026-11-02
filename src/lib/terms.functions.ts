@@ -72,9 +72,9 @@ export const askAboutTerms = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { streamResponsesText } = await import("./ai");
     const r = await streamResponsesText({
-      instructions: `${SYSTEM}\nAnswer questions about these terms in 2-5 short sentences. If the terms don't cover it, say so and suggest what to ask the host.\n\n<terms>\n${data.terms}\n</terms>`,
+      instructions: `${SYSTEM}\nAnswer questions about these terms in 2-5 short sentences of plain text, no markdown or asterisks. If the terms don't cover it, say so and suggest what to ask the host.\n\n<terms>\n${data.terms}\n</terms>`,
       input: [...data.history, { role: "user", content: data.question }],
     });
     if (!r.ok) throw new Error(r.message ?? "Couldn't answer right now.");
-    return { answer: r.text };
+    return { answer: r.text.replace(/\*\*(.+?)\*\*/g, "$1") };
   });

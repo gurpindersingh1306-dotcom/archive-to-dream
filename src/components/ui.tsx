@@ -25,7 +25,7 @@ export function TrialThread({ className = "" }: { className?: string }) {
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link href="/" className={`flex items-center gap-2 font-display text-xl font-extrabold tracking-tight ${light ? "text-on-ink" : "text-ink"}`}>
+    <Link href="/" className={`flex items-center gap-2 text-xl font-extrabold tracking-tight ${light ? "text-on-ink" : "text-ink"}`}>
       <svg viewBox="0 0 28 28" className="h-7 w-7" aria-hidden="true">
         <rect width="28" height="28" rx="14" fill="var(--color-coral)" />
         <line x1="7" y1="14" x2="13" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" strokeDasharray="2.4 2.4" />
