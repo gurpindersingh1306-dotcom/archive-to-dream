@@ -6,6 +6,7 @@ import { ArrowLeft, UserRound, Users, Home } from "lucide-react";
 import { areas, durations, quiz } from "@/lib/quiz";
 import { inr } from "@/lib/match";
 import { saveProfile } from "@/lib/profile";
+import { useAuth } from "@/lib/auth";
 import { demoProfile } from "@/lib/data";
 import { QuizIcon } from "@/components/ui";
 import type { Gender, Habits, HouseholdPref, Living, Profile } from "@/lib/types";
@@ -24,13 +25,14 @@ const prefs: { value: HouseholdPref; label: string }[] = [
 
 export default function Start() {
   const router = useRouter();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [p, setP] = useState<Profile>({ ...demoProfile, name: "", habits: {} });
   const total = 4 + quiz.length;
   const next = () => setStep((s) => Math.min(total - 1, s + 1));
   const later = (fn: () => void) => { fn(); setTimeout(next, 240); };
 
-  const finish = () => { saveProfile(p); router.push("/matches"); };
+  const finish = async () => { await saveProfile(p, user?.id); router.push("/matches"); };
 
   let content: React.ReactNode;
   if (step === 0) {
@@ -59,7 +61,7 @@ export default function Start() {
           <span className="font-display text-2xl font-semibold tabular-nums">{inr(p.budget)}</span>
         </label>
         <input id="budget" type="range" min={8000} max={40000} step={500} value={p.budget} onChange={(e) => setP({ ...p, budget: Number(e.target.value) })} className="mt-3 w-full" />
-        <button onClick={next} className="mt-8 w-full rounded-xl bg-ink py-3 font-medium text-white hover:bg-ink-2">Continue</button>
+        <button onClick={next} className="btn-primary mt-8 w-full">Continue</button>
       </Q>
     );
   } else if (step < 2 + quiz.length) {
@@ -118,7 +120,7 @@ export default function Start() {
             <Choice key={x.value} row active={p.householdPref === x.value} onClick={() => setP({ ...p, householdPref: x.value })}><span className="font-medium">{x.label}</span></Choice>
           ))}
         </div>
-        <button onClick={finish} className="mt-8 w-full rounded-xl bg-ink py-3 font-medium text-white hover:bg-ink-2">See my matches</button>
+        <button onClick={finish} className="btn-primary mt-8 w-full">See my matches</button>
       </Q>
     );
   }
@@ -148,7 +150,7 @@ export default function Start() {
 function Q({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
   return (
     <section>
-      <h1 className="text-3xl font-semibold leading-tight">{title}</h1>
+      <h1 className="text-4xl leading-[1.05]">{title}</h1>
       <p className="mt-2 text-ink-2">{hint}</p>
       <div className="mt-8">{children}</div>
     </section>
