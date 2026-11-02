@@ -87,5 +87,6 @@ export interface Listing {
   answers: Record<string, string>;
   byYou?: boolean;
   hostId?: string;
+  terms?: string;
   status?: "live" | "paused";
 }

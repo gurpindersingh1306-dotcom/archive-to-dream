@@ -17,6 +17,17 @@ const rules = (r: Partial<HouseRules>): HouseRules => ({ guests: "sometimes", qu
 const rep = (icon: LivedInReport["icon"], label: string, tone: LivedInReport["tone"] = "good"): LivedInReport => ({ icon, label, tone });
 const verified = { idVerified: true, ownershipDocs: "owner-submitted" as const, inspected: true };
 
+export const sampleTerms = `1. Trial stay: The trial is charged upfront. If the guest leaves before the trial ends, no refund is given for unused days.
+2. Security deposit: For a lease, the tenant pays two months' rent as a security deposit. It is refunded within 30 days of move-out after deducting unpaid dues and the cost of any damage beyond normal wear and tear.
+3. Notice period: Either side must give one month's written notice to end the lease. If the tenant leaves without notice, one month's rent is deducted from the deposit.
+4. Lock-in: The first 6 months of a lease are a lock-in period. Leaving during the lock-in means the tenant pays rent for the remaining lock-in months.
+5. Rent: Rent is due by the 5th of every month. A late fee of Rs 200 per day applies after the 5th.
+6. Maintenance: Society maintenance and electricity are paid by the tenant and split equally among flatmates. Major repairs (plumbing, wiring, appliances supplied by the owner) are the owner's responsibility.
+7. Painting and cleaning: At move-out, Rs 5,000 is deducted from the deposit for painting and deep cleaning, regardless of the condition of the room.
+8. Guests: Overnight guests are allowed for up to 2 nights a month with prior notice to flatmates.
+9. Entry: The owner may inspect the flat with 24 hours' notice, except in emergencies.
+10. Rent increase: Rent increases by 5% at each annual renewal.`;
+
 export const listings: Listing[] = [
   {
     id: "hsr-2bhk-share", title: "Bright room in a 2BHK share", area: "HSR Layout", kind: "Shared flat", householdType: "women",
@@ -280,6 +291,9 @@ const photoSets = [
   [balcony1, living2, bedroom1, street1],
 ];
 listings.forEach((l, i) => { if (!l.photos?.length) l.photos = photoSets[i % photoSets.length]; });
+
+// Every sample home ships the same sample agreement.
+listings.forEach((l) => { l.terms ??= sampleTerms; });
 
 export const demoProfile: Profile = {
   name: "Riya", duration: "1m", area: "HSR Layout", budget: 16000, living: "flatmates", gender: "woman", householdPref: "either",

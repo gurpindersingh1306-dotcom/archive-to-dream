@@ -39,6 +39,7 @@ export function Logo({ light = false }: { light?: boolean }) {
 const navLinks = [
   { href: "/matches", label: "Matches" },
   { href: "/locality", label: "Locality" },
+  { href: "/explain", label: "Explain terms" },
   { href: "/bookings", label: "Stays" },
   { href: "/host", label: "Host" },
 ];
@@ -126,6 +127,7 @@ export function Footer() {
             <li><Link href="/start" className="hover:text-coral">Find your fit</Link></li>
             <li><Link href="/matches" className="hover:text-coral">Your matches</Link></li>
             <li><Link href="/locality" className="hover:text-coral">Locality data</Link></li>
+            <li><Link href="/explain" className="hover:text-coral">Terms explainer</Link></li>
           </ul>
         </div>
         <div className="text-sm">

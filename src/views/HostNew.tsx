@@ -10,6 +10,7 @@ import { uploadImage, useAuth, displayName } from "@/lib/auth";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { HomeVisual } from "@/components/visuals";
+import { sampleTerms } from "@/lib/data";
 import type { Duration, Flatmate, Habits, HouseholdType, HouseRules, Listing } from "@/lib/types";
 
 const kinds: Listing["kind"][] = ["Shared flat", "PG room", "Studio", "1BHK", "Room in a family home"];
@@ -50,7 +51,7 @@ export default function NewListing() {
   const [f, setF] = useState({
     host: "", title: "", area: "HSR Layout", kind: "Shared flat" as Listing["kind"], householdType: "mixed" as HouseholdType, blurb: "",
     commuteTo: "", commuteMin: 20, monthly: 15000, weekly: 4400, depositMonths: 2, minStay: "1w" as Duration, trialToLease: true,
-    photos: [] as string[], alone: false, flatmates: [] as Flatmate[], shared: ["Kitchen", "Living room"], otherRules: "",
+    photos: [] as string[], alone: false, flatmates: [] as Flatmate[], shared: ["Kitchen", "Living room"], otherRules: "", terms: "",
     rules: { guests: "sometimes", quietAfter: "10:30 pm", food: "any", smoking: "no", drinking: true, pets: false, other: [] } as HouseRules,
   });
   const set = (patch: Partial<typeof f>) => { setF((x) => ({ ...x, ...patch })); setError(""); };
@@ -64,6 +65,7 @@ export default function NewListing() {
     flatmates: f.alone ? [] : f.flatmates, rules: { ...f.rules, other: f.otherRules.split("\n").map((s) => s.trim()).filter(Boolean) },
     shared: f.shared, reports: [], reportCount: 0, trust: { idVerified: false, ownershipDocs: "not-provided", inspected: false },
     answers: { default: "Thanks for your interest! Happy to answer questions or set up a visit." },
+    ...(f.terms.trim() ? { terms: f.terms.trim() } : {}),
   }), [f]);
 
   const validate = () => {
@@ -247,6 +249,10 @@ export default function NewListing() {
                   </div>
                   <Field label="Shared spaces"><div className="flex flex-wrap gap-2">{presetSpaces.map((s) => <Chip key={s} active={f.shared.includes(s)} onClick={() => set({ shared: f.shared.includes(s) ? f.shared.filter((x) => x !== s) : [...f.shared, s] })}>{s}</Chip>)}</div></Field>
                   <Field label="Anything else renters should know" htmlFor="other" hint="One rule per line."><textarea id="other" rows={3} className={input} value={f.otherRules} onChange={(e) => set({ otherRules: e.target.value })} placeholder={"Cleaning rota on the fridge\nGate closes at midnight"} /></Field>
+                  <Field label="Terms & conditions" htmlFor="terms" hint="Deposit, notice period, lock-in, late fees, deductions. Renters get an AI explanation of every clause in plain language.">
+                    <textarea id="terms" rows={8} className={input} value={f.terms} onChange={(e) => set({ terms: e.target.value })} maxLength={15000} placeholder={"1. Security deposit: two months' rent, refunded within 30 days of move-out.\n2. Notice period: one month's written notice from either side."} />
+                    {!f.terms && <button type="button" onClick={() => set({ terms: sampleTerms })} className="mt-2 text-sm font-semibold text-coral hover:underline">Start from a sample agreement</button>}
+                  </Field>
                 </div>
               )}
 
@@ -259,6 +265,7 @@ export default function NewListing() {
                       ["Trial to lease", f.trialToLease ? "Allowed, you approve each conversion" : "Not offered"],
                       ["Photos", f.photos.length ? `${f.photos.length} added` : "None yet, illustrations will show"],
                       ["Household", f.alone ? "Renter lives alone" : f.flatmates.length ? f.flatmates.map((m) => m.name).join(", ") : "No flatmates added"],
+                      ["Terms", f.terms.trim() ? `${f.terms.trim().split("\n").filter(Boolean).length} clauses added` : "None added"],
                       ["Rules", `Quiet after ${f.rules.quietAfter} · Smoking ${f.rules.smoking === "no" ? "not allowed" : "balcony only"} · Pets ${f.rules.pets ? "allowed" : "not allowed"}`],
                     ].map(([k, v]) => (
                       <div key={k} className="grid grid-cols-[120px_1fr] gap-4 p-4 text-sm"><dt className="text-muted">{k}</dt><dd>{v}</dd></div>

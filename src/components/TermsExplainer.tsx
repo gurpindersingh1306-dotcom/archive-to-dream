@@ -14,7 +14,7 @@ const riskStyle = {
 
 const starters = ["When do I get my deposit back?", "Can I leave early?", "What happens if something breaks?"];
 
-export function TermsExplainer({ terms, redirect, autoStart = false }: { terms: string; redirect: string; autoStart?: boolean }) {
+export function TermsExplainer({ terms, redirect }: { terms: string; redirect: string }) {
   const { user, ready } = useAuth();
   const explain = useServerFn(explainTerms);
   const ask = useServerFn(askAboutTerms);
@@ -24,15 +24,13 @@ export function TermsExplainer({ terms, redirect, autoStart = false }: { terms: 
   const [chat, setChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [q, setQ] = useState("");
   const [thinking, setThinking] = useState(false);
-  const [started, setStarted] = useState(false);
 
   const run = async () => {
-    setBusy(true); setError(""); setStarted(true);
+    setBusy(true); setError("");
     try { setResult(await explain({ data: { terms } })); }
     catch (e) { setError(e instanceof Error ? e.message : "Couldn't explain these terms."); }
     finally { setBusy(false); }
   };
-  if (autoStart && user && !started && terms.trim().length >= 20) void run();
 
   const send = async (question: string) => {
     const text = question.trim();
