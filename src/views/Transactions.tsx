@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, CalendarRange, Download, FilePlus2, Printer, Receipt, Search, Wallet, X, CircleAlert, ShieldCheck, RotateCcw, Wrench } from "lucide-react";
-import { fmtDate, monthly, receiptHtml, statusLabel, summarise, typeLabel, type Role, type Transaction, type TxStatus, type TxType } from "@/lib/finance";
+import { fmtDate, monthly, transactionsFor, receiptHtml, statusLabel, summarise, typeLabel, type Role, type Transaction, type TxStatus, type TxType } from "@/lib/finance";
 import { toast } from "sonner";
 import Link from "@/components/AppLink";
 import { useAuth, displayName } from "@/lib/auth";
@@ -36,7 +36,8 @@ export default function TransactionsPage() {
   const [open, setOpen] = useState<Transaction | null>(null);
   const [creating, setCreating] = useState(false);
 
-  const all = useMemo<Transaction[]>(() => (rows ?? [])
+  const [paidSamples, setPaidSamples] = useState<string[]>([]);
+  const real = useMemo<Transaction[]>(() => (rows ?? [])
     .filter((r) => (role === "tenant" ? r.payer_id === user?.id : r.payee_id === user?.id))
     .map((r: TxRow) => {
       const other = role === "tenant" ? r.payee_id : r.payer_id;
@@ -47,7 +48,13 @@ export default function TransactionsPage() {
         ...(r.method ? { method: r.method } : {}), direction: role === "tenant" ? (r.type === "refund" ? "in" : "out") : "in", dbId: r.id,
       } as Transaction & { dbId: string };
     }), [rows, role, user, names]);
+  // Until the account has its own payments, show sample invoices so every part of the page can be tried.
+  const isSample = rows !== null && real.length === 0;
+  const all = useMemo<Transaction[]>(() => isSample
+    ? transactionsFor(role).map((t) => (paidSamples.includes(t.id) ? { ...t, status: "paid" as const, method: "UPI (simulated)" } : t))
+    : real, [isSample, real, role, paidSamples]);
   const pay = async (t: Transaction) => {
+    if (isSample) { setPaidSamples((p) => [...p, t.id]); toast.success(`Paid ${inr(t.amount)} (sample invoice)`); return; }
     try { await payTransaction((t as Transaction & { dbId: string }).dbId); toast.success(`Paid ${inr(t.amount)} (simulated)`); refresh(); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Payment failed"); }
   };
@@ -96,6 +103,7 @@ export default function TransactionsPage() {
           <p className="flex items-center gap-2 text-sm text-muted"><Receipt className="h-4 w-4" aria-hidden="true" />Transactions & invoices <DemoBadge text="Simulated payments" /></p>
           <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">{role === "tenant" ? "Your rent and payments" : "Income across your homes"}</h1>
           <p className="mt-1 text-ink-2">{displayName(profile, user?.email ?? "")} · {all.length} transaction{all.length === 1 ? "" : "s"}</p>
+          {isSample && <p className="mt-3 inline-block rounded-full bg-teal-soft px-3 py-1 text-sm font-medium text-teal-deep">Showing sample invoices. Your real ones appear here once you book a stay or get invoiced.</p>}
         </div>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1 ring-1 ring-line" role="tablist" aria-label="View as">
           {(["tenant", "landlord"] as const).map((r) => (
