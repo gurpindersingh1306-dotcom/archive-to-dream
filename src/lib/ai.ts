@@ -46,10 +46,39 @@ async function callGemini(key: string, model: string, prompt: string, o: AskOpti
   }
 }
 
+async function callGateway(prompt: string, o: AskOptions) {
+  const key = process.env["LOVABLE_API_KEY"];
+  if (!key) return { ok: false as const, status: 401 };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST", signal: controller.signal,
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [...(o.system ? [{ role: "system", content: o.system }] : []), { role: "user", content: prompt }],
+      }),
+    });
+    if (!res.ok) return { ok: false as const, status: res.status };
+    const data = await res.json();
+    const text: string = (data?.choices?.[0]?.message?.content ?? "").trim();
+    return text ? { ok: true as const, text } : { ok: false as const, status: 502 };
+  } catch {
+    return { ok: false as const, status: 504 };
+  } finally { clearTimeout(timer); }
+}
+
 export async function askAI(prompt: string, o: AskOptions): Promise<AIResult> {
   const ck = cacheKey(prompt, o);
   const hit = cache.get(ck);
   if (hit) return { ...hit, source: "cache" };
+
+  if (!o.images?.length) {
+    const r = await callGateway(prompt, o);
+    if (r.ok) { const result: AIResult = { text: r.text, source: "gemini", model: "lovable-ai" }; cache.set(ck, result); return result; }
+    console.warn(`[askAI] Lovable AI failed with ${r.status}`);
+  }
 
   for (const key of keys()) {
     for (const model of models()) {
