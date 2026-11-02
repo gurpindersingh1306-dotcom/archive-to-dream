@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Page from "@/views/Host";
 
-export const Route = createFileRoute("/host/")({
+export const Route = createFileRoute("/_authenticated/host/")({
   head: () => ({
     meta: [
       { title: "Your listings | Tryout" },

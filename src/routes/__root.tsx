@@ -12,7 +12,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { Nav } from "@/components/ui";
+import { Nav, Footer } from "@/components/ui";
+import { AuthProvider } from "@/lib/auth";
+import { useScrollMotion } from "@/lib/motion";
+import { Toaster } from "sonner";
 
 function NotFoundComponent() {
   return (
@@ -94,7 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -124,8 +127,18 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Nav />
-      <Outlet />
+      <AuthProvider>
+        <Motion />
+        <Nav />
+        <Outlet />
+        <Footer />
+        <Toaster position="bottom-center" richColors />
+      </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function Motion() {
+  useScrollMotion();
+  return null;
 }

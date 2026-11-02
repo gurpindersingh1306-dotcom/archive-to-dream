@@ -24,7 +24,8 @@ export default function Matches() {
     <main className="mx-auto max-w-6xl px-5 py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-semibold">Your top 3 this week</h1>
+          <h1 className="text-5xl" data-split>Your top 3 this week</h1>
+          {(profile as { isDemo?: boolean }).isDemo && <p className="mt-3 inline-block rounded-full bg-teal-soft px-3 py-1 text-sm font-medium text-teal-deep">Showing a sample renter. <Link href="/start" className="underline">Answer the quiz</Link> for your own matches.</p>}
           <p className="mt-2 text-ink-2">Picked from {all.length} homes for {dur}{profile.area !== "Anywhere" ? ` near ${profile.area}` : ""}, around {inr(profile.budget)} a month.</p>
         </div>
         <Link href="/start" className="rounded-lg border border-line bg-white px-4 py-2 text-sm hover:border-ink/30">Edit your answers</Link>
@@ -74,7 +75,7 @@ function TopCard({ m, profile, first }: { m: MatchResult; profile: Profile; firs
   const l = m.listing;
   const price = priceFor(l, profile.duration);
   return (
-    <Link href={`/homes/${l.id}`} className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition hover:-translate-y-1 ${first ? "border-teal" : "border-line hover:border-ink/30"}`}>
+    <Link href={`/homes/${l.id}`} className={`group flex h-full flex-col overflow-hidden rounded-[1.75rem] border-[1.5px] bg-white transition duration-300 hover:-translate-y-1.5 hover:shadow-lift ${first ? "border-coral" : "border-line hover:border-ink"}`}>
       <div className="relative overflow-hidden">
         <div className="transition-transform duration-500 group-hover:scale-105">
           <HomeVisual listing={l} className="h-48" />

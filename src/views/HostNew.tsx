@@ -5,7 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ImagePlus, Plus, Trash2, Star, RefreshCw, Bus, Users, UserRound } from "lucide-react";
 import { areas, durations, quiz } from "@/lib/quiz";
 import { inr } from "@/lib/match";
-import { saveHostListing } from "@/lib/store";
+import { createListing } from "@/lib/store";
+import { uploadImage, useAuth, displayName } from "@/lib/auth";
+import { toast } from "sonner";
+import { useEffect } from "react";
 import { HomeVisual } from "@/components/visuals";
 import type { Duration, Flatmate, Habits, HouseholdType, HouseRules, Listing } from "@/lib/types";
 
@@ -39,6 +42,7 @@ const Field = ({ label, htmlFor, children, hint }: { label: string; htmlFor?: st
 
 export default function NewListing() {
   const router = useRouter();
+  const { user, profile, isHost, ready } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
@@ -56,7 +60,7 @@ export default function NewListing() {
     id: `preview-${f.title || "new"}`, title: f.title || "Your listing title", area: f.area, kind: f.kind, householdType: f.householdType,
     weekly: f.weekly, monthly: f.monthly, deposit: f.monthly * f.depositMonths, minStay: f.minStay,
     commuteMin: f.commuteMin, commuteTo: f.commuteTo || "nearby offices", trialToLease: f.trialToLease,
-    host: f.host || "You", hostSince: 2026, blurb: f.blurb, photos: f.photos.length ? f.photos : undefined,
+    host: f.host || "You", hostSince: new Date().getFullYear(), blurb: f.blurb, photos: f.photos.length ? f.photos : undefined,
     flatmates: f.alone ? [] : f.flatmates, rules: { ...f.rules, other: f.otherRules.split("\n").map((s) => s.trim()).filter(Boolean) },
     shared: f.shared, reports: [], reportCount: 0, trust: { idVerified: false, ownershipDocs: "not-provided", inspected: false },
     answers: { default: "Thanks for your interest! Happy to answer questions or set up a visit." },
@@ -85,17 +89,27 @@ export default function NewListing() {
     finally { setBusy(false); if (fileRef.current) fileRef.current.value = ""; }
   };
 
-  const publish = () => {
-    const id = `host-${Date.now().toString(36)}`;
+  useEffect(() => { if (profile && !f.host) set({ host: displayName(profile, "") }); }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (ready && !isHost) router.push("/host"); }, [ready, isHost]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const publish = async () => {
+    if (!user) return;
+    setBusy(true);
     try {
-      saveHostListing({ ...preview, id, host: f.host.trim(), title: f.title.trim() });
+      const urls: string[] = [];
+      for (const [i, src] of f.photos.entries()) {
+        const blob = await (await fetch(src)).blob();
+        urls.push(await uploadImage("listing-photos", user.id, blob, `photo-${i}.jpg`));
+      }
+      const id = await createListing({ ...preview, host: f.host.trim(), title: f.title.trim(), photos: undefined }, urls);
+      toast.success("Your home is live");
       router.push(`/homes/${id}?new=1`);
-    } catch {
-      setError("Your browser's storage is full. Remove a photo or two and publish again.");
-    }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't publish. Try again.");
+    } finally { setBusy(false); }
   };
 
-  const input = "w-full rounded-xl border border-line bg-white px-3 py-2.5 outline-none focus:border-teal";
+  const input = "field";
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-10">
@@ -111,7 +125,7 @@ export default function NewListing() {
 
           <AnimatePresence mode="wait">
             <motion.section key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.2 }} className="mt-8">
-              <h1 className="text-3xl font-semibold">{steps[step]}</h1>
+              <h1 className="text-4xl">{steps[step]}</h1>
 
               {step === 0 && (
                 <div className="mt-6 space-y-5">
@@ -257,9 +271,9 @@ export default function NewListing() {
               {error && <p role="alert" className="mt-5 text-sm text-red">{error}</p>}
               <div className="mt-8 flex gap-3">
                 {step < steps.length - 1 ? (
-                  <button onClick={next} className="rounded-xl bg-ink px-6 py-3 font-medium text-white hover:bg-ink-2">Continue</button>
+                  <button onClick={next} className="btn-primary">Continue</button>
                 ) : (
-                  <button onClick={publish} className="rounded-xl bg-teal px-6 py-3 font-medium text-white hover:bg-teal-deep">Publish listing</button>
+                  <button onClick={publish} disabled={busy} className="btn-primary">{busy ? "Publishing" : "Publish listing"}</button>
                 )}
               </div>
             </motion.section>

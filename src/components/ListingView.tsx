@@ -8,6 +8,9 @@ import { ArrowLeft, Bus, CheckCircle2, Droplets, MessageCircle, RefreshCw, Send,
 import { durations } from "@/lib/quiz";
 import { useProfile } from "@/lib/profile";
 import { useAllListings } from "@/lib/store";
+import { useReviews } from "@/lib/db";
+import { useNavigate } from "@tanstack/react-router";
+import { Star } from "lucide-react";
 import { inr, priceFor, scoreListing, type FitKey } from "@/lib/match";
 import { TrustRow } from "@/components/ui";
 import { CountUp, FitBar, Gallery } from "@/components/visuals";
@@ -34,6 +37,8 @@ export function ListingView({ id }: { id: string }) {
   const [chat, setChat] = useState<{ open: boolean; draft: string; topic: string }>({ open: false, draft: "", topic: "default" });
   const [ai, setAi] = useState<{ text: string; source: string } | null>(null);
   const [justListed, setJustListed] = useState(false);
+  const { reviews } = useReviews(id);
+  const nav = useNavigate();
 
   useEffect(() => { if (profile) setDuration(profile.duration); }, [profile]);
   useEffect(() => { setJustListed(new URLSearchParams(window.location.search).has("new")); }, []);
@@ -59,7 +64,7 @@ export function ListingView({ id }: { id: string }) {
 
   const match = scoreListing(profile, l);
   const price = priceFor(l, duration);
-  const openChat = (k?: FitKey) => setChat({ open: true, draft: k ? askCopy[k].message : "", topic: k ? askCopy[k].topic : "default" });
+  const openChat = (k?: FitKey) => l.hostId ? nav({ to: "/inbox", search: { listing: l.id } }) : setChat({ open: true, draft: k ? askCopy[k].message : "", topic: k ? askCopy[k].topic : "default" });
   const minLabel = durations.find((d) => d.value === l.minStay)?.label;
 
   return (
@@ -67,7 +72,7 @@ export function ListingView({ id }: { id: string }) {
       {justListed && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center gap-3 rounded-xl bg-green-soft p-4 text-green">
           <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden="true" />
-          <p className="text-sm"><span className="font-semibold">Your home is listed.</span> This is what renters see, with the fit score based on the demo renter&apos;s answers.</p>
+          <p className="text-sm"><span className="font-semibold">Your home is listed.</span> This is what renters see. The fit score uses your own quiz answers, or a sample renter if you haven&apos;t taken it.</p>
           <Link href="/host" className="ml-auto shrink-0 text-sm font-medium underline">Your listings</Link>
         </motion.div>
       )}
@@ -78,7 +83,7 @@ export function ListingView({ id }: { id: string }) {
           <Gallery listing={l} />
           <div>
             <p className="text-sm text-muted">{l.area}, Bengaluru · {l.kind} · {householdLabel[l.householdType]}</p>
-            <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">{l.title}</h1>
+            <h1 className="mt-1 text-4xl sm:text-5xl">{l.title}</h1>
             {l.blurb && <p className="mt-3 max-w-2xl text-lg leading-relaxed text-ink-2">{l.blurb}</p>}
             <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-2">
               <span className="flex items-center gap-1.5"><Bus className="h-4 w-4 text-muted" aria-hidden="true" />{l.commuteMin} min to {l.commuteTo}</span>
@@ -145,17 +150,23 @@ export function ListingView({ id }: { id: string }) {
           </section>
 
           <section className="rounded-2xl border border-line bg-white p-6">
-            <h2 className="text-lg font-semibold">Lived-in reports</h2>
-            {l.reports.length ? (
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Lived-in reports</h2>
+              {reviews.length > 0 && <span className="flex items-center gap-1 text-sm font-semibold"><Star className="h-4 w-4 fill-coral text-coral" />{(reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)} · {reviews.length}</span>}
+            </div>
+            {reviews.length || l.reports.length ? (
               <>
                 <ul className="mt-4 space-y-3">
+                  {reviews.map((r) => { const I = reportIcon[r.topic]; return (
+                    <li key={r.id} className="flex gap-3 text-sm text-ink-2"><I className={`mt-0.5 h-4 w-4 shrink-0 ${r.tone === "good" ? "text-green" : "text-amber"}`} aria-hidden="true" /><span>{r.body} <span className="text-xs text-muted">· verified guest, {new Date(r.created_at).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}</span></span></li>
+                  ); })}
                   {l.reports.map((r) => { const I = reportIcon[r.icon]; return (
                     <li key={r.label} className="flex gap-3 text-sm text-ink-2"><I className={`mt-0.5 h-4 w-4 shrink-0 ${r.tone === "good" ? "text-green" : "text-amber"}`} aria-hidden="true" />{r.label}</li>
                   ); })}
                 </ul>
-                <p className="mt-4 text-xs text-muted">From {l.reportCount} completed trial stays. Sample data for the demo.</p>
+                <p className="mt-4 text-xs text-muted">Only guests who booked a trial stay can post a report.{l.reports.length ? " Sample reports are marked as demo data." : ""}</p>
               </>
-            ) : <p className="mt-3 text-sm text-ink-2">No trial stays yet. Reports appear after the first renter completes a trial.</p>}
+            ) : <p className="mt-3 text-sm text-ink-2">No trial stays yet. Reports appear after the first renter stays here.</p>}
           </section>
 
           <LocalityPanel area={l.area} />
@@ -167,7 +178,7 @@ export function ListingView({ id }: { id: string }) {
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl border border-line bg-white p-6">
+          <div className="rounded-[2rem] border border-line bg-white p-6 shadow-lift">
             <p className="text-sm font-medium text-ink-2">Stay length</p>
             <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl bg-paper p-1" role="radiogroup" aria-label="Stay length">
               {durations.map((d) => (
@@ -187,8 +198,8 @@ export function ListingView({ id }: { id: string }) {
               <div className="flex justify-between"><dt className="text-muted">Minimum stay</dt><dd>{minLabel}</dd></div>
             </dl>
             {l.trialToLease && <p className="mt-4 flex gap-2 rounded-lg bg-green-soft p-3 text-sm text-green"><RefreshCw className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />Like it? Turn your trial into a lease without starting over.</p>}
-            <Link href={`/homes/${l.id}/trial`} className="mt-5 block rounded-xl bg-ink py-3 text-center font-medium text-white hover:bg-ink-2">Book a trial stay</Link>
-            <button onClick={() => openChat()} className="mt-2 w-full rounded-xl border border-line py-3 font-medium hover:border-ink/30">Message the household</button>
+            {l.byYou ? <p className="mt-5 rounded-2xl bg-paper p-3 text-sm text-ink-2">This is your listing. Requests show up under Trial stays.</p> : <Link href={`/homes/${l.id}/trial`} className="btn-primary mt-5 w-full">Book a trial stay</Link>}
+            {!l.byYou && <button onClick={() => openChat()} className="btn-ghost mt-2 w-full">Message the household</button>}
           </div>
         </aside>
       </div>
