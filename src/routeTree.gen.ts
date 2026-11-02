@@ -16,6 +16,9 @@ import { Route as LocalityRouteImport } from './routes/locality'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
+import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedHostIndexRouteImport } from './routes/_authenticated/host.index'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
@@ -56,6 +59,21 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTransactionsRoute =
   AuthenticatedTransactionsRouteImport.update({
     id: '/transactions',
@@ -90,6 +108,9 @@ export interface FileRoutesByFullPath {
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
+  '/account': typeof AuthenticatedAccountRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
+  '/inbox': typeof AuthenticatedInboxRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
@@ -103,6 +124,9 @@ export interface FileRoutesByTo {
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
+  '/account': typeof AuthenticatedAccountRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
+  '/inbox': typeof AuthenticatedInboxRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
@@ -118,6 +142,9 @@ export interface FileRoutesById {
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
+  '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
@@ -133,6 +160,9 @@ export interface FileRouteTypes {
     | '/matches'
     | '/reset-password'
     | '/start'
+    | '/account'
+    | '/bookings'
+    | '/inbox'
     | '/transactions'
     | '/host/new'
     | '/homes/$id/trial'
@@ -146,6 +176,9 @@ export interface FileRouteTypes {
     | '/matches'
     | '/reset-password'
     | '/start'
+    | '/account'
+    | '/bookings'
+    | '/inbox'
     | '/transactions'
     | '/host/new'
     | '/homes/$id/trial'
@@ -160,6 +193,9 @@ export interface FileRouteTypes {
     | '/matches'
     | '/reset-password'
     | '/start'
+    | '/_authenticated/account'
+    | '/_authenticated/bookings'
+    | '/_authenticated/inbox'
     | '/_authenticated/transactions'
     | '/_authenticated/host/new'
     | '/homes/$id/trial'
@@ -230,6 +266,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bookings': {
+      id: '/_authenticated/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof AuthenticatedBookingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inbox': {
+      id: '/_authenticated/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AuthenticatedInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/transactions': {
       id: '/_authenticated/transactions'
       path: '/transactions'
@@ -269,12 +326,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
+  AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedHostNewRoute: typeof AuthenticatedHostNewRoute
   AuthenticatedHostIndexRoute: typeof AuthenticatedHostIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
+  AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedHostNewRoute: AuthenticatedHostNewRoute,
   AuthenticatedHostIndexRoute: AuthenticatedHostIndexRoute,
