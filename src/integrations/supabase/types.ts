@@ -14,16 +14,280 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          created_at: string
+          duration: string
+          host_id: string | null
+          id: string
+          listing_id: string
+          listing_title: string
+          message: string
+          renter_id: string
+          start_date: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration: string
+          host_id?: string | null
+          id?: string
+          listing_id: string
+          listing_title: string
+          message?: string
+          renter_id?: string
+          start_date: string
+          status?: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string
+          host_id?: string | null
+          id?: string
+          listing_id?: string
+          listing_title?: string
+          message?: string
+          renter_id?: string
+          start_date?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      listings: {
+        Row: {
+          created_at: string
+          data: Json
+          host_id: string
+          id: string
+          photos: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          host_id?: string
+          id?: string
+          photos?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          host_id?: string
+          id?: string
+          photos?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          host_id: string
+          id: string
+          listing_id: string
+          renter_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          host_id: string
+          id?: string
+          listing_id: string
+          renter_id: string
+          sender_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          host_id?: string
+          id?: string
+          listing_id?: string
+          renter_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      renter_preferences: {
+        Row: {
+          answers: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          tone: string
+          topic: string
+        }
+        Insert: {
+          author_id?: string
+          body: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating: number
+          tone?: string
+          topic?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          tone?: string
+          topic?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          description: string
+          due: string
+          id: string
+          method: string | null
+          paid_at: string | null
+          payee_id: string | null
+          payer_id: string
+          property: string
+          ref: string
+          status: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          description: string
+          due?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          payee_id?: string | null
+          payer_id: string
+          property?: string
+          ref?: string
+          status?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          description?: string
+          due?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          payee_id?: string | null
+          payer_id?: string
+          property?: string
+          ref?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      become_host: { Args: never; Returns: undefined }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      pay_transaction: { Args: { _id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "host" | "renter"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +414,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "host", "renter"],
+    },
   },
 } as const
