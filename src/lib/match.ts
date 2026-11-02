@@ -2,7 +2,29 @@ import type { Habits, Listing, Profile } from "./types";
 
 export type FitKey = "rhythm" | "cleanliness" | "guests" | "noise" | "kitchen" | "smoking" | "pets" | "sharing";
 export interface FitPart { key: FitKey; label: string; score: number; note: string }
-export interface MatchResult { listing: Listing; score: number; parts: FitPart[]; reason: string }
+export interface TrustCheck { label: string; ok: boolean }
+export type Confidence = "High" | "Medium" | "Low";
+export interface MatchResult { listing: Listing; score: number; parts: FitPart[]; reason: string; checks: TrustCheck[]; confidence: Confidence; basis: string }
+
+// How much to trust a listing's score: verified, inspected homes with many stay reports score "High".
+export function trustFor(p: Profile, l: Listing): { checks: TrustCheck[]; confidence: Confidence; basis: string } {
+  const over = l.monthly - p.budget;
+  const checks: TrustCheck[] = [
+    { label: over <= 0 ? "Within your budget" : `${inr(over)} over budget`, ok: over <= 0 },
+    { label: "Host ID verified", ok: l.trust.idVerified },
+    { label: "Ownership papers checked", ok: l.trust.ownershipDocs === "owner-submitted" },
+    { label: "Inspected in person", ok: l.trust.inspected },
+    { label: `${l.reportCount} lived-in report${l.reportCount === 1 ? "" : "s"}`, ok: l.reportCount >= 3 },
+  ];
+  const answered = Object.values(p.habits).filter(Boolean).length;
+  const points = (l.trust.inspected ? 2 : 0) + (l.trust.ownershipDocs === "owner-submitted" ? 1 : 0) + (l.reportCount >= 5 ? 2 : l.reportCount >= 3 ? 1 : 0) + (answered >= 8 ? 1 : 0);
+  const confidence: Confidence = points >= 5 ? "High" : points >= 3 ? "Medium" : "Low";
+  const n = l.flatmates.length;
+  const basis = n
+    ? `Compared your ${answered} answers with ${n === 1 ? l.flatmates[0].name.split(" ")[0] + "'s" : `${n} flatmates'`} habits, plus ${l.reportCount} stay report${l.reportCount === 1 ? "" : "s"}`
+    : `Based on the house rules, your budget and ${l.reportCount} stay report${l.reportCount === 1 ? "" : "s"}`;
+  return { checks, confidence, basis };
+}
 
 const order = {
   wake: ["early", "mid", "late"],
@@ -87,7 +109,13 @@ export function scoreListing(p: Profile, l: Listing): MatchResult {
   const soloNote: Partial<Record<FitKey, string>> = { rhythm: "Your own schedule", cleanliness: "Your own space", sharing: "Your own bills", kitchen: "Your own kitchen" };
   const parts: FitPart[] = keys.map((k) => ({ key: k, label: fitLabels[k], score: raw[k], note: solo && soloNote[k] ? soloNote[k]! : verdict(raw[k]) }));
 
-  return { listing: l, score: Math.max(0, Math.min(99, Math.round(total))), parts, reason: buildReason(p, l, raw) };
+  // Small nudges so a verified, well-reviewed home edges out an unchecked one with the same fit.
+  if (l.trust.ownershipDocs === "not-provided") total -= 3;
+  if (l.trust.inspected) total += 1;
+  if (l.commuteMin <= 12) total += 1;
+  else if (l.commuteMin >= 30) total -= 2;
+
+  return { listing: l, score: Math.max(0, Math.min(99, Math.round(total))), parts, reason: buildReason(p, l, raw), ...trustFor(p, l) };
 }
 
 function buildReason(p: Profile, l: Listing, raw: Record<FitKey, number>) {
@@ -133,7 +161,7 @@ export function rankListings(p: Profile, all: Listing[]) {
     .filter((l) => !(p.habits.pets === "has" && !l.rules.pets))
     .filter((l) => l.monthly <= p.budget * 1.35)
     .map((l) => scoreListing(p, l))
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => b.score - a.score || b.listing.reportCount - a.listing.reportCount);
 }
 
 export function priceFor(l: Listing, d: Profile["duration"]) {

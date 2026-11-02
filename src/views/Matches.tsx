@@ -1,7 +1,7 @@
 
 import Link from "@/components/AppLink";
 import { motion } from "framer-motion";
-import { Bus, RefreshCw, Users, UserRound } from "lucide-react";
+import { Bus, Check, RefreshCw, ShieldCheck, Users, UserRound, X } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 import { useAllListings } from "@/lib/store";
 import { durations } from "@/lib/quiz";
@@ -59,6 +59,7 @@ export default function Matches() {
                     <p className="truncate font-medium group-hover:text-teal">{m.listing.title}</p>
                     <p className="truncate text-sm text-muted">{m.listing.area} · {inr(m.listing.monthly)} a month</p>
                     <p className="mt-1 line-clamp-1 text-sm text-ink-2">{m.reason}</p>
+                    <p className="mt-1 text-xs text-muted">{m.confidence} confidence · {m.listing.reportCount} stay reports{m.listing.trust.inspected ? " · Inspected" : ""}</p>
                   </div>
                   <MatchPill score={m.score} />
                 </Link>
@@ -101,6 +102,19 @@ function TopCard({ m, profile, first }: { m: MatchResult; profile: Profile; firs
           </span>
         </div>
         <p className="mt-4 rounded-lg bg-paper p-3 text-sm leading-relaxed text-ink-2">{m.reason}</p>
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />{m.confidence} confidence
+          </p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {m.checks.map((c) => (
+              <li key={c.label} className={`flex items-center gap-2 ${c.ok ? "text-ink-2" : "text-muted"}`}>
+                {c.ok ? <Check className="h-3.5 w-3.5 text-green" aria-label="Yes" /> : <X className="h-3.5 w-3.5 text-amber" aria-label="No" />}{c.label}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted">{m.basis}</p>
+        </div>
       </div>
     </Link>
   );
