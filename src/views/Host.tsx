@@ -21,7 +21,7 @@ export default function HostDashboard() {
 
   const become = async () => {
     const { error } = await supabase.rpc("become_host");
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await refreshAuth(); toast.success("Hosting is on");
   };
   const act = async (fn: () => Promise<void>, msg: string) => {

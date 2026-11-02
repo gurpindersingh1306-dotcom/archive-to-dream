@@ -38,12 +38,12 @@ function Account() {
   };
   const onName = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim().length < 2) return toast.error("Name must be at least 2 characters");
+    if (name.trim().length < 2) { toast.error("Name must be at least 2 characters"); return; }
     try { await save({ full_name: name.trim() }); toast.success("Saved"); } catch (err) { toast.error(err instanceof Error ? err.message : "Couldn't save"); }
   };
   const onPhoto = async (f?: File) => {
     if (!f) return;
-    if (!f.type.startsWith("image/")) return toast.error("Choose an image file");
+    if (!f.type.startsWith("image/")) { toast.error("Choose an image file"); return; }
     setBusy(true);
     try { const url = await uploadImage("avatars", user.id, f, f.name.replace(/[^\w.]/g, "")); await save({ avatar_url: url }); toast.success("Photo updated"); }
     catch (err) { toast.error(err instanceof Error ? err.message : "Upload failed"); }
@@ -51,7 +51,7 @@ function Account() {
   };
   const host = async () => {
     const { error } = await supabase.rpc("become_host");
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await refresh(); toast.success("You can now list homes");
   };
 

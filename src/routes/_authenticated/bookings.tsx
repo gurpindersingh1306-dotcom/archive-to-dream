@@ -112,7 +112,7 @@ function ReviewBox({ booking }: { booking: Booking }) {
   if (done) return <p className="mt-4 rounded-2xl bg-green-soft p-3 text-sm text-green">Thanks! Your lived-in report now shows on the listing.</p>;
   if (!open) return <button onClick={() => setOpen(true)} className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-coral hover:underline"><Star className="h-4 w-4" />Write a lived-in report</button>;
   const submit = async () => {
-    if (body.trim().length < 4) return toast.error("Write a sentence about what it's really like.");
+    if (body.trim().length < 4) { toast.error("Write a sentence about what it's really like."); return; }
     setBusy(true);
     try { await addReview({ listing_id: booking.listing_id, rating, topic, tone: rating >= 4 ? "good" : "mixed", body: body.trim() }); setDone(true); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Couldn't save"); }

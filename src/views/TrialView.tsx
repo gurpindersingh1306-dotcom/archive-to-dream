@@ -40,8 +40,8 @@ export function TrialView({ id }: { id: string }) {
   const own = !!user && l.hostId === user.id;
 
   const book = async () => {
-    if (!user) return nav({ to: "/auth", search: { redirect: `/homes/${l.id}/trial` } });
-    if (start < tomorrow()) return toast.error("Pick a start date from tomorrow onwards.");
+    if (!user) { nav({ to: "/auth", search: { redirect: `/homes/${l.id}/trial` } }); return; }
+    if (start < tomorrow()) { toast.error("Pick a start date from tomorrow onwards."); return; }
     setBusy(true);
     try {
       const b = await requestBooking({ listing_id: l.id, listing_title: `${l.title}, ${l.area}`, duration, start_date: start, total: Math.round(price.total), message: message.trim() });
