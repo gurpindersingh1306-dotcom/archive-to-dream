@@ -17,9 +17,9 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in | Tryout" },
-      { name: "description", content: "Sign in or create a Tryout account to book trial stays, list your home and keep your matches." },
-      { property: "og:title", content: "Sign in | Tryout" },
+      { title: "Sign in | LeaseIt" },
+      { name: "description", content: "Sign in or create a LeaseIt account to book trial stays, list your home and keep your matches." },
+      { property: "og:title", content: "Sign in | LeaseIt" },
       { property: "og:description", content: "Book trial stays, list your home and keep your matches in one account." },
     ],
   }),
@@ -70,20 +70,20 @@ function AuthPage() {
   };
 
   const google = async () => {
-    try { sessionStorage.setItem("tryout-after-auth", target); } catch {}
+    try { sessionStorage.setItem("leaseit-after-auth", target); } catch {}
     const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
     if (r.error) toast.error("Google sign-in didn't finish. Please try again.");
   };
 
   useEffect(() => {
     if (!user) return;
-    try { const t = sessionStorage.getItem("tryout-after-auth"); if (t) { sessionStorage.removeItem("tryout-after-auth"); nav({ to: safePath(t), replace: true }); } } catch {}
+    try { const t = sessionStorage.getItem("leaseit-after-auth"); if (t) { sessionStorage.removeItem("leaseit-after-auth"); nav({ to: safePath(t), replace: true }); } } catch {}
   }, [user, nav]);
 
   return (
     <main className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-24">
       <div className="hidden md:block" data-reveal>
-        <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-coral">Tryout account</p>
+        <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-coral">LeaseIt account</p>
         <h1 className="mt-4 text-6xl leading-[0.95]">Your next home, without the guesswork.</h1>
         <ul className="mt-8 space-y-4 text-ink-2">
           <li className="flex gap-3"><KeyRound className="h-5 w-5 shrink-0 text-coral" />Book trial stays and keep every receipt in one place</li>
@@ -140,7 +140,7 @@ function AuthPage() {
             </form>
 
             <p className="mt-6 text-center text-sm text-ink-2">
-              {mode === "signin" ? <>New to Tryout? <button onClick={() => setMode("signup")} className="font-semibold text-ink underline underline-offset-4">Create an account</button></>
+              {mode === "signin" ? <>New to LeaseIt? <button onClick={() => setMode("signup")} className="font-semibold text-ink underline underline-offset-4">Create an account</button></>
                 : <>Already have an account? <button onClick={() => setMode("signin")} className="font-semibold text-ink underline underline-offset-4">Sign in</button></>}
             </p>
           </>

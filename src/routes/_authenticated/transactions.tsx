@@ -4,9 +4,9 @@ import Page from "@/views/Transactions";
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({
     meta: [
-      { title: "Transactions & invoices | Tryout" },
+      { title: "Transactions & invoices | LeaseIt" },
       { name: "description", content: "Rent, deposits, refunds, bills and invoices for tenants and landlords in one place." },
-      { property: "og:title", content: "Transactions & invoices | Tryout" },
+      { property: "og:title", content: "Transactions & invoices | LeaseIt" },
       { property: "og:description", content: "Rent, deposits, refunds, bills and invoices for tenants and landlords." },
     ],
   }),

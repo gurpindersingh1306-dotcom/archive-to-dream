@@ -4,10 +4,10 @@ import Page from "@/views/Host";
 export const Route = createFileRoute("/_authenticated/host/")({
   head: () => ({
     meta: [
-      { title: "Your listings | Tryout" },
-      { name: "description", content: "Manage the homes you have listed on Tryout." },
-      { property: "og:title", content: "Your listings | Tryout" },
-      { property: "og:description", content: "Manage the homes you have listed on Tryout." },
+      { title: "Your listings | LeaseIt" },
+      { name: "description", content: "Manage the homes you have listed on LeaseIt." },
+      { property: "og:title", content: "Your listings | LeaseIt" },
+      { property: "og:description", content: "Manage the homes you have listed on LeaseIt." },
     ],
   }),
   component: Page,

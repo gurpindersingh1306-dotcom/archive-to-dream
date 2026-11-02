@@ -6,3 +6,5 @@
 - [x] Redesign: bold modern look (Syne + Plus Jakarta Sans, off-white / ink / coral), GSAP scroll animations
 - [x] AI match explanations through Lovable AI (no key needed)
 - [x] Verify sign-in and core flows end to end (renter flow on a sample home; host accept/decline and two-person messaging need a second account to try)
+- [x] Rename to LeaseIt, tagline "Live it first, Lease it later"
+- [x] Hosts add terms & conditions; AI explains each clause in plain language, flags risks, answers questions (listing page + /explain)

@@ -10,7 +10,8 @@ import { useProfile } from "@/lib/profile";
 import { useAllListings } from "@/lib/store";
 import { useReviews } from "@/lib/db";
 import { useNavigate } from "@tanstack/react-router";
-import { Star } from "lucide-react";
+import { Star, FileText } from "lucide-react";
+import { TermsExplainer } from "@/components/TermsExplainer";
 import { inr, priceFor, scoreListing, type FitKey } from "@/lib/match";
 import { TrustRow } from "@/components/ui";
 import { CountUp, FitBar, Gallery } from "@/components/visuals";
@@ -167,6 +168,17 @@ export function ListingView({ id }: { id: string }) {
                 <p className="mt-4 text-xs text-muted">Only guests who booked a trial stay can post a report.{l.reports.length ? " Sample reports are marked as demo data." : ""}</p>
               </>
             ) : <p className="mt-3 text-sm text-ink-2">No trial stays yet. Reports appear after the first renter stays here.</p>}
+          </section>
+
+          <section className="rounded-2xl border border-line bg-white p-6">
+            <div className="flex items-center gap-2"><FileText className="h-5 w-5 text-coral" /><h2 className="text-lg font-semibold">Terms &amp; conditions</h2></div>
+            {l.terms ? (<>
+              <details className="mt-3 rounded-2xl bg-paper p-4 text-sm text-ink-2">
+                <summary className="cursor-pointer select-none font-semibold text-ink">Read the full terms{!l.hostId ? " (sample agreement)" : ""}</summary>
+                <p className="mt-3 whitespace-pre-line leading-relaxed">{l.terms}</p>
+              </details>
+              <div className="mt-4"><TermsExplainer terms={l.terms} redirect={`/homes/${l.id}`} /></div>
+            </>) : <p className="mt-3 text-sm text-ink-2">The host hasn&apos;t added terms yet. Ask for them before you book, then paste them into the <Link href="/explain" className="font-semibold underline">terms explainer</Link>.</p>}
           </section>
 
           <LocalityPanel area={l.area} />

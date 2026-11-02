@@ -43,7 +43,7 @@ export default function TransactionsPage() {
       const status: TxStatus = r.status === "pending" && r.due < TODAY ? "overdue" : r.status;
       return {
         id: r.ref, invoice: r.ref.replace("TXN", "INV"), date: r.created_at.slice(0, 10), due: r.due, type: r.type, description: r.description,
-        property: r.property, counterparty: other ? names[other]?.full_name || "Tryout member" : "Tryout (sample home)", amount: r.amount, status,
+        property: r.property, counterparty: other ? names[other]?.full_name || "LeaseIt member" : "LeaseIt (sample home)", amount: r.amount, status,
         ...(r.method ? { method: r.method } : {}), direction: role === "tenant" ? (r.type === "refund" ? "in" : "out") : "in", dbId: r.id,
       } as Transaction & { dbId: string };
     }), [rows, role, user, names]);
@@ -72,7 +72,7 @@ export default function TransactionsPage() {
   const exportCsv = () => {
     const rows = [["Transaction ID", "Invoice", "Date", "Type", "Description", "Counterparty", "Amount", "Status"], ...filtered.map((t) => [t.id, t.invoice, t.date, typeLabel[t.type], t.description, t.counterparty, String(t.amount), statusLabel[t.status]])];
     const blob = new Blob([rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n")], { type: "text/csv" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `tryout-${role}-transactions.csv`; a.click(); URL.revokeObjectURL(a.href);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `leaseit-${role}-transactions.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
 
   const cards = role === "tenant"
@@ -217,7 +217,7 @@ export default function TransactionsPage() {
               </div>
               <div className="flex-1 p-5">
                 <div className="rounded-2xl border border-line bg-paper p-5">
-                  <div className="flex items-center justify-between"><span className="font-display text-lg font-semibold">Tryout</span><span className={`rounded-md px-2 py-1 text-xs font-medium ${statusTone[open.status]}`}>{statusLabel[open.status]}</span></div>
+                  <div className="flex items-center justify-between"><span className="font-display text-lg font-semibold">LeaseIt</span><span className={`rounded-md px-2 py-1 text-xs font-medium ${statusTone[open.status]}`}>{statusLabel[open.status]}</span></div>
                   <p className="mt-4 font-display text-3xl font-semibold tabular-nums">{inr(open.amount)}</p>
                   <p className="text-sm text-ink-2">{open.description}</p>
                   <dl className="mt-5 space-y-2 border-t border-line pt-4 text-sm">

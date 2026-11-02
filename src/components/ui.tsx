@@ -25,13 +25,13 @@ export function TrialThread({ className = "" }: { className?: string }) {
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link href="/" className={`flex items-center gap-2 font-display text-xl font-extrabold tracking-tight ${light ? "text-on-ink" : "text-ink"}`}>
+    <Link href="/" className={`flex items-center gap-2 text-xl font-extrabold tracking-tight ${light ? "text-on-ink" : "text-ink"}`}>
       <svg viewBox="0 0 28 28" className="h-7 w-7" aria-hidden="true">
         <rect width="28" height="28" rx="14" fill="var(--color-coral)" />
         <line x1="7" y1="14" x2="13" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" strokeDasharray="2.4 2.4" />
         <line x1="14" y1="14" x2="21" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" />
       </svg>
-      tryout
+      <span>Lease<span className="text-coral">It</span></span>
     </Link>
   );
 }
@@ -39,6 +39,7 @@ export function Logo({ light = false }: { light?: boolean }) {
 const navLinks = [
   { href: "/matches", label: "Matches" },
   { href: "/locality", label: "Locality" },
+  { href: "/explain", label: "Explain terms" },
   { href: "/bookings", label: "Stays" },
   { href: "/host", label: "Host" },
 ];
@@ -118,7 +119,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Logo light />
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-on-ink/70">Try the home, try the flatmates, then sign. Trial stays for interns, students and new joiners in Bengaluru.</p>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-on-ink/70">Live it first, Lease it later. Trial stays for interns, students and new joiners in Bengaluru.</p>
         </div>
         <div className="text-sm">
           <p className="font-display font-bold">Renters</p>
@@ -126,6 +127,7 @@ export function Footer() {
             <li><Link href="/start" className="hover:text-coral">Find your fit</Link></li>
             <li><Link href="/matches" className="hover:text-coral">Your matches</Link></li>
             <li><Link href="/locality" className="hover:text-coral">Locality data</Link></li>
+            <li><Link href="/explain" className="hover:text-coral">Terms explainer</Link></li>
           </ul>
         </div>
         <div className="text-sm">
@@ -138,7 +140,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-on-ink/10">
-        <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-on-ink/50">© 2026 Tryout · Sample homes are marked as samples. Payments are simulated, no real money moves.</p>
+        <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-on-ink/50">© 2026 LeaseIt · Sample homes are marked as samples. Payments are simulated, no real money moves.</p>
       </div>
     </footer>
   );
