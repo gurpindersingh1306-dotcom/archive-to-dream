@@ -13,10 +13,10 @@ import { Avatar } from "@/components/ui";
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
     meta: [
-      { title: "Your account | Tryout" },
+      { title: "Your account | LeaseIt" },
       { name: "description", content: "Manage your name, photo, hosting and saved answers." },
-      { property: "og:title", content: "Your account | Tryout" },
-      { property: "og:description", content: "Manage your Tryout account." },
+      { property: "og:title", content: "Your account | LeaseIt" },
+      { property: "og:description", content: "Manage your LeaseIt account." },
     ],
   }),
   component: Account,

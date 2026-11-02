@@ -86,11 +86,11 @@ export function receiptHtml(t: Transaction, role: Role) {
   const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${t.invoice}</title>
 <style>body{font-family:system-ui,sans-serif;color:#13223a;max-width:640px;margin:40px auto;padding:0 20px}h1{font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}td{padding:8px 0;border-bottom:1px solid #e1e4de}td:last-child{text-align:right}.muted{color:#657084;font-size:13px}.total{font-size:20px;font-weight:700}.demo{background:#fbefdc;color:#a8550a;padding:6px 10px;border-radius:6px;font-size:12px;display:inline-block}</style></head>
-<body><p class="demo">Simulated receipt for demonstration. Not a tax invoice.</p><h1>Tryout ${t.status === "paid" || t.status === "refunded" ? "receipt" : "invoice"} ${t.invoice}</h1>
+<body><p class="demo">Simulated receipt for demonstration. Not a tax invoice.</p><h1>LeaseIt ${t.status === "paid" || t.status === "refunded" ? "receipt" : "invoice"} ${t.invoice}</h1>
 <p class="muted">Transaction ${t.id} · Issued ${fmtDate(t.date)} · Due ${fmtDate(t.due)}</p>
 <table><tr><td>Property</td><td>${t.property}</td></tr><tr><td>${role === "tenant" ? "Paid to" : "Billed to"}</td><td>${t.counterparty}</td></tr>
 <tr><td>Type</td><td>${typeLabel[t.type]}</td></tr><tr><td>Description</td><td>${t.description}</td></tr>
 <tr><td>Status</td><td>${statusLabel[t.status]}</td></tr><tr><td>Payment method</td><td>${t.method ?? "Not paid yet"}</td></tr>
 <tr><td class="total">Amount</td><td class="total">${inr(t.amount)}</td></tr></table>
-<p class="muted" style="margin-top:24px">Tryout · Try the home, then sign.</p></body></html>`;
+<p class="muted" style="margin-top:24px">LeaseIt · Live it first, Lease it later.</p></body></html>`;
 }

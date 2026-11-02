@@ -4,9 +4,9 @@ import { ListingView } from "@/components/ListingView";
 export const Route = createFileRoute("/homes/$id/")({
   head: () => ({
     meta: [
-      { title: "Home details | Tryout" },
+      { title: "Home details | LeaseIt" },
       { name: "description", content: "See how well this home and its flatmates fit you before you book a trial stay." },
-      { property: "og:title", content: "Home details | Tryout" },
+      { property: "og:title", content: "Home details | LeaseIt" },
       { property: "og:description", content: "See how well this home and its flatmates fit you." },
     ],
   }),

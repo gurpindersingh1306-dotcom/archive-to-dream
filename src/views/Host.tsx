@@ -30,7 +30,7 @@ export default function HostDashboard() {
 
   if (ready && !isHost) return (
     <main className="mx-auto max-w-3xl px-5 py-20 text-center">
-      <h1 className="text-5xl" data-reveal>Host on Tryout</h1>
+      <h1 className="text-5xl" data-reveal>Host on LeaseIt</h1>
       <p className="mx-auto mt-4 max-w-lg text-lg text-ink-2">List a room, a flat or a PG bed. Renters try it for a week or a month before they commit.</p>
       <button onClick={become} className="btn-primary mt-8">Start hosting</button>
     </main>

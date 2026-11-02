@@ -4,9 +4,9 @@ import Page from "@/views/HostNew";
 export const Route = createFileRoute("/_authenticated/host/new")({
   head: () => ({
     meta: [
-      { title: "List a home | Tryout" },
+      { title: "List a home | LeaseIt" },
       { name: "description", content: "List your home step by step with a live preview." },
-      { property: "og:title", content: "List a home | Tryout" },
+      { property: "og:title", content: "List a home | LeaseIt" },
       { property: "og:description", content: "List your home step by step with a live preview." },
     ],
   }),

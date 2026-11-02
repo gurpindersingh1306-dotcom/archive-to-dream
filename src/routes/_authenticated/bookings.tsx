@@ -11,9 +11,9 @@ import { Avatar } from "@/components/ui";
 export const Route = createFileRoute("/_authenticated/bookings")({
   head: () => ({
     meta: [
-      { title: "Trial stays | Tryout" },
+      { title: "Trial stays | LeaseIt" },
       { name: "description", content: "Your trial stays and the requests guests have sent to your homes." },
-      { property: "og:title", content: "Trial stays | Tryout" },
+      { property: "og:title", content: "Trial stays | LeaseIt" },
       { property: "og:description", content: "Track trial stays and booking requests." },
     ],
   }),
@@ -70,8 +70,8 @@ function BookingsPage() {
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${bookingTone[b.status]}`}>{tab === "requests" && b.status === "requested" ? "Needs your answer" : bookingLabel[b.status]}</span>
                 </div>
                 <div className="mt-4 flex items-center gap-3 text-sm">
-                  <Avatar name={other?.full_name ?? (tab === "trips" ? "Tryout" : "Guest")} url={other?.avatar_url} />
-                  <span className="text-ink-2">{tab === "trips" ? `Host: ${other?.full_name || "Tryout sample home"}` : `Guest: ${other?.full_name || "A renter"}`}</span>
+                  <Avatar name={other?.full_name ?? (tab === "trips" ? "LeaseIt" : "Guest")} url={other?.avatar_url} />
+                  <span className="text-ink-2">{tab === "trips" ? `Host: ${other?.full_name || "LeaseIt sample home"}` : `Guest: ${other?.full_name || "A renter"}`}</span>
                 </div>
                 {b.message && <p className="mt-3 rounded-2xl bg-paper p-3 text-sm text-ink-2">&ldquo;{b.message}&rdquo;</p>}
                 <div className="mt-4 flex flex-wrap gap-2">

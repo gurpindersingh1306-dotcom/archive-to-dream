@@ -16,9 +16,9 @@ export const Route = createFileRoute("/_authenticated/inbox")({
   }),
   head: () => ({
     meta: [
-      { title: "Messages | Tryout" },
+      { title: "Messages | LeaseIt" },
       { name: "description", content: "Conversations between renters and hosts." },
-      { property: "og:title", content: "Messages | Tryout" },
+      { property: "og:title", content: "Messages | LeaseIt" },
       { property: "og:description", content: "Conversations between renters and hosts." },
     ],
   }),
@@ -84,7 +84,7 @@ function Inbox() {
                 <button onClick={() => setActive(t.key)} className={`flex w-full items-center gap-3 p-4 text-left transition ${active === t.key ? "bg-paper" : "hover:bg-paper/60"}`}>
                   <Avatar name={o?.full_name ?? "?"} url={o?.avatar_url} />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{o?.full_name || "Tryout member"}</span>
+                    <span className="block truncate font-semibold">{o?.full_name || "LeaseIt member"}</span>
                     <span className="block truncate text-xs text-muted">{title(t.listing_id)}</span>
                     {t.last && <span className="block truncate text-sm text-ink-2">{t.last.body}</span>}
                   </span>
@@ -96,7 +96,7 @@ function Inbox() {
         <section className="flex min-h-[520px] flex-col">
           {cur ? (<>
             <div className="border-b border-line p-4">
-              <p className="font-semibold">{names[otherId(cur)]?.full_name || "Tryout member"}</p>
+              <p className="font-semibold">{names[otherId(cur)]?.full_name || "LeaseIt member"}</p>
               <p className="text-xs text-muted">{title(cur.listing_id)} · {cur.host_id === user?.id ? "You're the host" : "You're the renter"}</p>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto p-4">

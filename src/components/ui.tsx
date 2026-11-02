@@ -31,7 +31,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <line x1="7" y1="14" x2="13" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" strokeDasharray="2.4 2.4" />
         <line x1="14" y1="14" x2="21" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" />
       </svg>
-      tryout
+      leaseit
     </Link>
   );
 }
@@ -138,7 +138,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-on-ink/10">
-        <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-on-ink/50">© 2026 Tryout · Sample homes are marked as samples. Payments are simulated, no real money moves.</p>
+        <p className="mx-auto max-w-6xl px-5 py-5 text-xs text-on-ink/50">© 2026 LeaseIt · Sample homes are marked as samples. Payments are simulated, no real money moves.</p>
       </div>
     </footer>
   );
