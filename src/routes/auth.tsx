@@ -81,7 +81,7 @@ function AuthPage() {
   }, [user, nav]);
 
   return (
-    <main className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-12 px-5 py-12 md:grid-cols-2">
+    <main className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-24">
       <div className="hidden md:block" data-reveal>
         <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-coral">Tryout account</p>
         <h1 className="mt-4 text-6xl leading-[0.95]">Your next home, without the guesswork.</h1>

@@ -28,7 +28,7 @@ export default function Landing() {
           <p className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-3 py-1.5 text-sm font-medium" data-reveal>
             <span className="h-2 w-2 animate-pulse rounded-full bg-coral" />Now open in Bengaluru
           </p>
-          <h1 className="mt-6 text-[clamp(3rem,7vw,5.6rem)] leading-[0.92]" data-split>Try the home. Try the flatmates. Then sign.</h1>
+          <h1 className="mt-6 text-[clamp(2.8rem,5.6vw,4.7rem)] leading-[0.95]" data-split>Try the home. Try the flatmates. Then sign.</h1>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-2" data-reveal>
             Moving cities shouldn&apos;t mean an 11-month lease on a flat you&apos;ve seen once. Stay a week or a month first. If the home and the people fit, make it permanent.
           </p>
@@ -53,7 +53,7 @@ export default function Landing() {
       <section className="mx-auto grid max-w-6xl gap-6 px-5 py-20 sm:grid-cols-3" data-reveal-stagger>
         {[[11, "months is the usual lease you skip"], [7, "days is the shortest trial"], [6, "questions to find your fit"]].map(([n, t]) => (
           <div key={String(t)} className="rounded-[2rem] border border-line bg-card p-8">
-            <p className="font-display text-7xl font-extrabold tabular-nums text-coral" data-count={n}>{n}</p>
+            <p className="text-7xl font-extrabold tracking-tight tabular-nums text-coral" data-count={n}>{n}</p>
             <p className="mt-2 text-ink-2">{t}</p>
           </div>
         ))}
