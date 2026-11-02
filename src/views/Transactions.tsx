@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, CalendarRange, Download, FilePlus2, Printer, Receipt, Search, Wallet, X, CircleAlert, ShieldCheck, RotateCcw, Wrench } from "lucide-react";
-import { fmtDate, monthly, receiptHtml, statusLabel, summarise, transactionsFor, typeLabel, type Role, type Transaction, type TxStatus, type TxType } from "@/lib/finance";
+import { fmtDate, monthly, receiptHtml, statusLabel, summarise, typeLabel, type Role, type Transaction, type TxStatus, type TxType } from "@/lib/finance";
+import { toast } from "sonner";
+import Link from "@/components/AppLink";
+import { useAuth, displayName } from "@/lib/auth";
+import { createInvoice, payTransaction, useBookings, useNames, useTransactions, type TxRow } from "@/lib/db";
 import { inr } from "@/lib/match";
 import { DemoBadge } from "@/components/LocalityMap";
 
@@ -11,26 +15,42 @@ const statusTone: Record<TxStatus, string> = {
 const ranges = [
   { v: "all", label: "All time" }, { v: "30", label: "Last 30 days" }, { v: "90", label: "Last 90 days" }, { v: "custom", label: "Custom" },
 ] as const;
-const TODAY = "2026-11-02";
+const TODAY = new Date().toISOString().slice(0, 10);
 
 function daysBefore(iso: string, days: number) {
   const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - days); return d.toISOString().slice(0, 10);
 }
 
 export default function TransactionsPage() {
+  const { user, profile, isHost } = useAuth();
+  const { rows, refresh } = useTransactions();
+  const { bookings } = useBookings();
   const [role, setRole] = useState<Role>("tenant");
-  const [extra, setExtra] = useState<Record<Role, Transaction[]>>({ tenant: [], landlord: [] });
-  const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
+  const names = useNames((rows ?? []).flatMap((r) => [r.payer_id, r.payee_id]));
   const [type, setType] = useState<TxType | "all">("all");
   const [status, setStatus] = useState<TxStatus | "all">("all");
   const [range, setRange] = useState<(typeof ranges)[number]["v"]>("all");
-  const [from, setFrom] = useState("2026-08-01");
+  const [from, setFrom] = useState(daysBefore(TODAY, 90));
   const [to, setTo] = useState(TODAY);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<Transaction | null>(null);
   const [creating, setCreating] = useState(false);
 
-  const all = useMemo(() => [...extra[role], ...transactionsFor(role)].map((t) => (paidIds.has(t.id) ? { ...t, status: "paid" as const, method: "UPI · simulated" } : t)), [role, extra, paidIds]);
+  const all = useMemo<Transaction[]>(() => (rows ?? [])
+    .filter((r) => (role === "tenant" ? r.payer_id === user?.id : r.payee_id === user?.id))
+    .map((r: TxRow) => {
+      const other = role === "tenant" ? r.payee_id : r.payer_id;
+      const status: TxStatus = r.status === "pending" && r.due < TODAY ? "overdue" : r.status;
+      return {
+        id: r.ref, invoice: r.ref.replace("TXN", "INV"), date: r.created_at.slice(0, 10), due: r.due, type: r.type, description: r.description,
+        property: r.property, counterparty: other ? names[other]?.full_name || "Tryout member" : "Tryout (sample home)", amount: r.amount, status,
+        ...(r.method ? { method: r.method } : {}), direction: role === "tenant" ? (r.type === "refund" ? "in" : "out") : "in", dbId: r.id,
+      } as Transaction & { dbId: string };
+    }), [rows, role, user, names]);
+  const pay = async (t: Transaction) => {
+    try { await payTransaction((t as Transaction & { dbId: string }).dbId); toast.success(`Paid ${inr(t.amount)} (simulated)`); refresh(); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Payment failed"); }
+  };
   const filtered = all.filter((t) => {
     if (type !== "all" && t.type !== type) return false;
     if (status !== "all" && t.status !== status) return false;
@@ -75,7 +95,7 @@ export default function TransactionsPage() {
         <div>
           <p className="flex items-center gap-2 text-sm text-muted"><Receipt className="h-4 w-4" aria-hidden="true" />Transactions & invoices <DemoBadge text="Simulated payments" /></p>
           <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">{role === "tenant" ? "Your rent and payments" : "Income across your homes"}</h1>
-          <p className="mt-1 text-ink-2">{role === "tenant" ? "Riya S. · Bright room in a 2BHK share, HSR Layout" : "Meera K. · 2 homes, 2 tenants"}</p>
+          <p className="mt-1 text-ink-2">{displayName(profile, user?.email ?? "")} · {all.length} transaction{all.length === 1 ? "" : "s"}</p>
         </div>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1 ring-1 ring-line" role="tablist" aria-label="View as">
           {(["tenant", "landlord"] as const).map((r) => (
@@ -120,7 +140,7 @@ export default function TransactionsPage() {
                 <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{t.description}</p><p className="text-xs text-muted">Due {fmtDate(t.due)} · <span className={t.status === "overdue" ? "text-red" : ""}>{statusLabel[t.status]}</span></p></div>
                 <span className="text-sm font-semibold tabular-nums">{inr(t.amount)}</span>
                 {role === "tenant"
-                  ? <button onClick={() => setPaidIds((s) => new Set(s).add(t.id))} className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink-2">Pay</button>
+                  ? <button onClick={() => pay(t)} className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-on-ink hover:bg-coral">Pay</button>
                   : <button onClick={() => setOpen(t)} className="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium hover:border-ink/30">Remind</button>}
               </li>
             ))}
@@ -155,7 +175,7 @@ export default function TransactionsPage() {
             </div>
           )}
           <button onClick={exportCsv} className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm font-medium hover:border-ink/30"><Download className="h-4 w-4" aria-hidden="true" />Export CSV</button>
-          {role === "landlord" && <button onClick={() => setCreating(true)} className="flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-medium text-white hover:bg-ink-2"><FilePlus2 className="h-4 w-4" aria-hidden="true" />New invoice</button>}
+          {role === "landlord" && isHost && <button onClick={() => setCreating(true)} className="flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-medium text-white hover:bg-ink-2"><FilePlus2 className="h-4 w-4" aria-hidden="true" />New invoice</button>}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
@@ -179,11 +199,11 @@ export default function TransactionsPage() {
                   </td>
                 </tr>
               ))}
-              {!filtered.length && <tr><td colSpan={7} className="px-4 py-12 text-center text-ink-2">No transactions match these filters.</td></tr>}
+              {!filtered.length && <tr><td colSpan={7} className="px-4 py-12 text-center text-ink-2">{all.length ? "No transactions match these filters." : <>Nothing here yet. Invoices appear once a trial stay is confirmed. <Link href="/matches" className="font-semibold underline">Find a home</Link></>}</td></tr>}
             </tbody>
           </table>
         </div>
-        <p className="px-4 py-3 text-xs text-muted">{filtered.length} of {all.length} transactions · Simulated data, no real money moves in this demo</p>
+        <p className="px-4 py-3 text-xs text-muted">{filtered.length} of {all.length} transactions · Payments are simulated, no real money moves</p>
       </section>
 
       <AnimatePresence>
@@ -212,7 +232,7 @@ export default function TransactionsPage() {
                 <button onClick={() => download(open)} className="flex items-center justify-center gap-2 rounded-xl bg-ink py-3 text-sm font-medium text-white hover:bg-ink-2"><Download className="h-4 w-4" aria-hidden="true" />Download</button>
                 <button onClick={() => print(open)} className="flex items-center justify-center gap-2 rounded-xl border border-line py-3 text-sm font-medium hover:border-ink/30"><Printer className="h-4 w-4" aria-hidden="true" />Print</button>
                 {role === "tenant" && (open.status === "pending" || open.status === "overdue") && (
-                  <button onClick={() => { setPaidIds((s) => new Set(s).add(open.id)); setOpen(null); }} className="col-span-2 rounded-xl bg-teal py-3 text-sm font-medium text-white hover:bg-teal-deep">Pay {inr(open.amount)} (simulated)</button>
+                  <button onClick={() => { pay(open); setOpen(null); }} className="col-span-2 rounded-xl bg-teal py-3 text-sm font-medium text-white hover:bg-teal-deep">Pay {inr(open.amount)} (simulated)</button>
                 )}
               </div>
             </motion.aside>
@@ -221,40 +241,47 @@ export default function TransactionsPage() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {creating && <NewInvoice onClose={() => setCreating(false)} onCreate={(t) => { setExtra((e) => ({ ...e, landlord: [t, ...e.landlord] })); setCreating(false); setOpen(t); }} count={extra.landlord.length} />}
+        {creating && user && <NewInvoice hostId={user.id} tenants={[...new Map((bookings ?? []).filter((b) => b.host_id === user.id && (b.status === "accepted" || b.status === "completed")).map((b) => [b.renter_id, { id: b.renter_id, property: b.listing_title }])).values()]} names={names} onClose={() => setCreating(false)} onCreate={() => { setCreating(false); refresh(); }} />}
       </AnimatePresence>
     </main>
   );
 }
 
-function NewInvoice({ onClose, onCreate, count }: { onClose: () => void; onCreate: (t: Transaction) => void; count: number }) {
+function NewInvoice({ onClose, onCreate, tenants, names, hostId }: { onClose: () => void; onCreate: () => void; hostId: string; tenants: { id: string; property: string }[]; names: Record<string, { full_name: string }> }) {
   const [type, setType] = useState<TxType>("maintenance");
   const [description, setDescription] = useState("Plumbing repair, kitchen sink");
   const [amount, setAmount] = useState(1500);
-  const [due, setDue] = useState("2026-11-10");
-  const [tenant, setTenant] = useState("Riya S.");
-  const submit = () => {
-    const n = 10500 + count;
-    onCreate({ id: `TXN-26-${n}`, invoice: `INV-26-${n}`, date: TODAY, due, type, description, amount, status: "pending", direction: "in", counterparty: tenant,
-      property: tenant === "Riya S." ? "Bright room in a 2BHK share, HSR Layout" : "Furnished 1BHK near ITPL, Whitefield" });
+  const [due, setDue] = useState(daysBefore(TODAY, -7));
+  const [tenant, setTenant] = useState(tenants[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    const t = tenants.find((x) => x.id === tenant);
+    if (!t) return;
+    setBusy(true);
+    try { await createInvoice({ payer_id: t.id, payee_id: hostId, property: t.property, type, description, amount, due }); toast.success("Invoice sent"); onCreate(); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Couldn't create invoice"); }
+    finally { setBusy(false); }
   };
-  const field = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm";
+  const field = "field mt-1 text-sm";
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
       <motion.form role="dialog" aria-label="New invoice" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { e.preventDefault(); submit(); }}
-        initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }} className="w-full max-w-md rounded-2xl bg-white p-6">
-        <div className="flex items-center justify-between"><h2 className="text-xl font-semibold">New invoice</h2><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-2 hover:bg-paper"><X className="h-5 w-5" /></button></div>
-        <div className="mt-4 space-y-3">
-          <label className="block text-sm font-medium">Tenant<select value={tenant} onChange={(e) => setTenant(e.target.value)} className={field}><option>Riya S.</option><option>Arjun M.</option></select></label>
-          <label className="block text-sm font-medium">Type<select value={type} onChange={(e) => setType(e.target.value as TxType)} className={field}>{(["rent", "maintenance", "utility", "additional"] as TxType[]).map((k) => <option key={k} value={k}>{typeLabel[k]}</option>)}</select></label>
-          <label className="block text-sm font-medium">Description<input required value={description} onChange={(e) => setDescription(e.target.value)} className={field} /></label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block text-sm font-medium">Amount (₹)<input required type="number" min={1} value={amount} onChange={(e) => setAmount(Number(e.target.value))} className={field} /></label>
-            <label className="block text-sm font-medium">Due date<input required type="date" value={due} onChange={(e) => setDue(e.target.value)} className={field} /></label>
+        initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }} className="w-full max-w-md rounded-[2rem] bg-card p-6">
+        <div className="flex items-center justify-between"><h2 className="text-2xl">New invoice</h2><button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 hover:bg-paper"><X className="h-5 w-5" /></button></div>
+        {tenants.length === 0 ? (
+          <p className="mt-4 text-ink-2">You can invoice guests once you&apos;ve accepted a trial stay.</p>
+        ) : (<>
+          <div className="mt-4 space-y-3">
+            <label className="block text-sm font-medium">Guest<select value={tenant} onChange={(e) => setTenant(e.target.value)} className={field}>{tenants.map((t) => <option key={t.id} value={t.id}>{names[t.id]?.full_name || "Guest"} · {t.property}</option>)}</select></label>
+            <label className="block text-sm font-medium">Type<select value={type} onChange={(e) => setType(e.target.value as TxType)} className={field}>{(["rent", "maintenance", "utility", "additional"] as TxType[]).map((k) => <option key={k} value={k}>{typeLabel[k]}</option>)}</select></label>
+            <label className="block text-sm font-medium">Description<input required value={description} onChange={(e) => setDescription(e.target.value)} className={field} /></label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm font-medium">Amount (₹)<input required type="number" min={1} value={amount} onChange={(e) => setAmount(Number(e.target.value))} className={field} /></label>
+              <label className="block text-sm font-medium">Due date<input required type="date" value={due} onChange={(e) => setDue(e.target.value)} className={field} /></label>
+            </div>
           </div>
-        </div>
-        <button type="submit" className="mt-6 w-full rounded-xl bg-ink py-3 font-medium text-white hover:bg-ink-2">Create invoice</button>
-        <p className="mt-2 text-center text-xs text-muted">Simulated. Invoices are kept for this session only.</p>
+          <button type="submit" disabled={busy} className="btn-primary mt-6 w-full">{busy ? "Sending" : "Send invoice"}</button>
+        </>)}
       </motion.form>
     </motion.div>
   );
