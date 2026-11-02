@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as LocalityRouteImport } from './routes/locality'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -37,6 +38,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplainRoute = ExplainRouteImport.update({
+  id: '/explain',
+  path: '/explain',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocalityRoute = LocalityRouteImport.update({
@@ -104,6 +110,7 @@ const HomesIdTrialRoute = HomesIdTrialRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/explain': typeof ExplainRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/explain': typeof ExplainRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/explain': typeof ExplainRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/explain'
     | '/locality'
     | '/matches'
     | '/reset-password'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/explain'
     | '/locality'
     | '/matches'
     | '/reset-password'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/explain'
     | '/locality'
     | '/matches'
     | '/reset-password'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ExplainRoute: typeof ExplainRoute
   LocalityRoute: typeof LocalityRoute
   MatchesRoute: typeof MatchesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -236,6 +249,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explain': {
+      id: '/explain'
+      path: '/explain'
+      fullPath: '/explain'
+      preLoaderRoute: typeof ExplainRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/locality': {
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ExplainRoute: ExplainRoute,
   LocalityRoute: LocalityRoute,
   MatchesRoute: MatchesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
