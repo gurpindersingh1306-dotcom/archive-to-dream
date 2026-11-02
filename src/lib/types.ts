@@ -86,4 +86,6 @@ export interface Listing {
   trust: { idVerified: boolean; ownershipDocs: "owner-submitted" | "not-provided"; inspected: boolean };
   answers: Record<string, string>;
   byYou?: boolean;
+  hostId?: string;
+  status?: "live" | "paused";
 }
