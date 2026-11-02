@@ -31,7 +31,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         <line x1="7" y1="14" x2="13" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" strokeDasharray="2.4 2.4" />
         <line x1="14" y1="14" x2="21" y2="14" stroke="var(--color-on-ink)" strokeWidth="2.4" />
       </svg>
-      leaseit
+      <span>Lease<span className="text-coral">It</span></span>
     </Link>
   );
 }
@@ -118,7 +118,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Logo light />
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-on-ink/70">Try the home, try the flatmates, then sign. Trial stays for interns, students and new joiners in Bengaluru.</p>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-on-ink/70">Live it first, Lease it later. Trial stays for interns, students and new joiners in Bengaluru.</p>
         </div>
         <div className="text-sm">
           <p className="font-display font-bold">Renters</p>
