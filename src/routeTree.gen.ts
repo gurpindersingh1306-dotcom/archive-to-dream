@@ -10,18 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LocalityRouteImport } from './routes/locality'
 import { Route as MatchesRouteImport } from './routes/matches'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as StartRouteImport } from './routes/start'
-import { Route as TransactionsRouteImport } from './routes/transactions'
-import { Route as HostIndexRouteImport } from './routes/host.index'
-import { Route as HostNewRouteImport } from './routes/host.new'
+import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
+import { Route as AuthenticatedHostIndexRouteImport } from './routes/_authenticated/host.index'
+import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
 import { Route as HomesIdIndexRouteImport } from './routes/homes.$id.index'
 import { Route as HomesIdTrialRouteImport } from './routes/homes.$id.trial'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocalityRoute = LocalityRouteImport.update({
@@ -34,25 +46,31 @@ const MatchesRoute = MatchesRouteImport.update({
   path: '/matches',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StartRoute = StartRouteImport.update({
   id: '/start',
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TransactionsRoute = TransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HostIndexRoute = HostIndexRouteImport.update({
+const AuthenticatedTransactionsRoute =
+  AuthenticatedTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHostIndexRoute = AuthenticatedHostIndexRouteImport.update({
   id: '/host/',
   path: '/host/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const HostNewRoute = HostNewRouteImport.update({
+const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   id: '/host/new',
   path: '/host/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const HomesIdIndexRoute = HomesIdIndexRouteImport.update({
   id: '/homes/$id/',
@@ -67,82 +85,96 @@ const HomesIdTrialRoute = HomesIdTrialRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
-  '/transactions': typeof TransactionsRoute
-  '/host/new': typeof HostNewRoute
-  '/host/': typeof HostIndexRoute
+  '/transactions': typeof AuthenticatedTransactionsRoute
+  '/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
+  '/host/': typeof AuthenticatedHostIndexRoute
   '/homes/$id/': typeof HomesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
-  '/transactions': typeof TransactionsRoute
-  '/host/new': typeof HostNewRoute
-  '/host': typeof HostIndexRoute
+  '/transactions': typeof AuthenticatedTransactionsRoute
+  '/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
+  '/host': typeof AuthenticatedHostIndexRoute
   '/homes/$id': typeof HomesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/locality': typeof LocalityRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/start': typeof StartRoute
-  '/transactions': typeof TransactionsRoute
-  '/host/new': typeof HostNewRoute
-  '/host/': typeof HostIndexRoute
+  '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
+  '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/homes/$id/trial': typeof HomesIdTrialRoute
+  '/_authenticated/host/': typeof AuthenticatedHostIndexRoute
   '/homes/$id/': typeof HomesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/locality'
     | '/matches'
+    | '/reset-password'
     | '/start'
     | '/transactions'
     | '/host/new'
-    | '/host/'
     | '/homes/$id/trial'
+    | '/host/'
     | '/homes/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/locality'
     | '/matches'
+    | '/reset-password'
     | '/start'
     | '/transactions'
     | '/host/new'
-    | '/host'
     | '/homes/$id/trial'
+    | '/host'
     | '/homes/$id'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
     | '/locality'
     | '/matches'
+    | '/reset-password'
     | '/start'
-    | '/transactions'
-    | '/host/new'
-    | '/host/'
+    | '/_authenticated/transactions'
+    | '/_authenticated/host/new'
     | '/homes/$id/trial'
+    | '/_authenticated/host/'
     | '/homes/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   LocalityRoute: typeof LocalityRoute
   MatchesRoute: typeof MatchesRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   StartRoute: typeof StartRoute
-  TransactionsRoute: typeof TransactionsRoute
-  HostNewRoute: typeof HostNewRoute
-  HostIndexRoute: typeof HostIndexRoute
   HomesIdTrialRoute: typeof HomesIdTrialRoute
   HomesIdIndexRoute: typeof HomesIdIndexRoute
 }
@@ -154,6 +186,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/locality': {
@@ -170,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/start': {
       id: '/start'
       path: '/start'
@@ -177,26 +230,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/transactions': {
-      id: '/transactions'
+    '/_authenticated/transactions': {
+      id: '/_authenticated/transactions'
       path: '/transactions'
       fullPath: '/transactions'
-      preLoaderRoute: typeof TransactionsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/host/': {
-      id: '/host/'
+    '/_authenticated/host/': {
+      id: '/_authenticated/host/'
       path: '/host'
       fullPath: '/host/'
-      preLoaderRoute: typeof HostIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedHostIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/host/new': {
-      id: '/host/new'
+    '/_authenticated/host/new': {
+      id: '/_authenticated/host/new'
       path: '/host/new'
       fullPath: '/host/new'
-      preLoaderRoute: typeof HostNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedHostNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/homes/$id/': {
       id: '/homes/$id/'
@@ -215,14 +268,29 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
+  AuthenticatedHostNewRoute: typeof AuthenticatedHostNewRoute
+  AuthenticatedHostIndexRoute: typeof AuthenticatedHostIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
+  AuthenticatedHostNewRoute: AuthenticatedHostNewRoute,
+  AuthenticatedHostIndexRoute: AuthenticatedHostIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   LocalityRoute: LocalityRoute,
   MatchesRoute: MatchesRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   StartRoute: StartRoute,
-  TransactionsRoute: TransactionsRoute,
-  HostNewRoute: HostNewRoute,
-  HostIndexRoute: HostIndexRoute,
   HomesIdTrialRoute: HomesIdTrialRoute,
   HomesIdIndexRoute: HomesIdIndexRoute,
 }
