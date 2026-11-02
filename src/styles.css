@@ -74,3 +74,6 @@ input[type="range"] { accent-color: var(--color-coral); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Syne's wide numerals read poorly in prices; numbers use the body face. */
+.font-display.tabular-nums, .tabular-nums.font-display { font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.02em; }
