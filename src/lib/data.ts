@@ -5,6 +5,11 @@ import kitchen1 from "@/assets/homes/kitchen-1.jpg";
 import studio1 from "@/assets/homes/studio-1.jpg";
 import balcony1 from "@/assets/homes/balcony-1.jpg";
 import street1 from "@/assets/homes/street-1.jpg";
+import living3 from "@/assets/homes/living-3.jpg";
+import bedroom2 from "@/assets/homes/bedroom-2.jpg";
+import kitchen2 from "@/assets/homes/kitchen-2.jpg";
+import studio2 from "@/assets/homes/studio-2.jpg";
+import { moreListings } from "./data-more";
 import type { Flatmate, Habits, HouseRules, Listing, LivedInReport, Profile } from "./types";
 
 // Demo data only. Every listing, person and report here is invented for the hackathon demo.
@@ -281,6 +286,7 @@ export const listings: Listing[] = [
     answers: { noise: "We're both on calls most of the day, so we keep it library-quiet until 6.", default: "Sunday brunches are a tradition here. You're welcome to join." },
   },
 ];
+listings.push(...moreListings);
 
 // Demo photography (AI-generated, representative, not the actual homes).
 const photoSets = [
@@ -289,8 +295,15 @@ const photoSets = [
   [living2, bedroom1, balcony1, street1],
   [bedroom1, living1, kitchen1, street1],
   [balcony1, living2, bedroom1, street1],
+  [living3, bedroom2, kitchen2, balcony1],
+  [bedroom2, living1, kitchen2, street1],
+  [living3, bedroom1, kitchen1, balcony1],
 ];
-listings.forEach((l, i) => { if (!l.photos?.length) l.photos = photoSets[i % photoSets.length]; });
+const studioSets = [[studio1, kitchen1, balcony1, street1], [studio2, kitchen2, balcony1, street1], [studio2, bedroom2, kitchen1, street1]];
+listings.forEach((l, i) => {
+  if (l.photos?.length) return;
+  l.photos = l.kind === "Studio" || l.kind === "1BHK" ? studioSets[i % studioSets.length] : photoSets[i % photoSets.length];
+});
 
 // Every sample home ships the same sample agreement.
 listings.forEach((l) => { l.terms ??= sampleTerms; });

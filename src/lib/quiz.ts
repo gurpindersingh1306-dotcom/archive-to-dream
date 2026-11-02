@@ -111,6 +111,7 @@ export const quiz: QuizQuestion[] = [
 export const areas = [
   "Anywhere", "HSR Layout", "Koramangala", "Indiranagar", "BTM Layout", "Bellandur", "Whitefield",
   "Marathahalli", "Electronic City", "JP Nagar", "Jayanagar", "Malleshwaram", "Frazer Town", "Sarjapur Road", "Hebbal",
+  "Domlur", "Kalyan Nagar", "Yelahanka", "Rajajinagar", "Basavanagudi", "Banashankari",
 ];
 
 export const durations = [
