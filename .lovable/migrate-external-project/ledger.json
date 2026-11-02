@@ -1,0 +1,5 @@
+[
+ {"capability":"code, routes, visuals, assets","source":"archive-to-dream-39 ZIP","outcome":"migrate","status":"done","next_action":"none"},
+ {"capability":"schema/records/auth","source":"none (data kept in the visitor's browser only)","outcome":"not applicable","status":"verified","next_action":"none"},
+ {"capability":"AI match explanation","source":"Gemini via server function","outcome":"preserved","status":"pending","next_action":"Optional GEMINI_API_KEY; rule-based fallback works without it"}
+]
