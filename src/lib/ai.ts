@@ -46,25 +46,21 @@ async function callGemini(key: string, model: string, prompt: string, o: AskOpti
   }
 }
 
-async function callGateway(prompt: string, o: AskOptions) {
+// Streams a Lovable AI Responses call and returns the full output text.
+export async function streamResponsesText(body: Record<string, unknown>): Promise<{ ok: true; text: string } | { ok: false; status: number; message?: string }> {
   const key = process.env["LOVABLE_API_KEY"];
-  if (!key) return { ok: false as const, status: 401 };
+  if (!key) return { ok: false, status: 401, message: "AI is not configured" };
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
-      body: JSON.stringify({
-        model: "openai/gpt-6-astra",
-        stream: true,
-        store: false,
-        reasoning: { effort: "low" },
-        ...(o.system ? { instructions: o.system } : {}),
-        input: [{ role: "user", content: prompt }],
-        ...(o.maxTokens ? { max_output_tokens: Math.max(o.maxTokens, 600) } : {}),
-      }),
+      body: JSON.stringify({ model: "openai/gpt-6-astra", stream: true, store: false, reasoning: { effort: "low" }, ...body }),
     });
-    if (!res.ok || !res.body) return { ok: false as const, status: res.status };
-    // Read the SSE stream and collect the output text.
+    if (!res.ok || !res.body) {
+      let message: string | undefined;
+      try { const j = await res.json(); message = j?.error?.message ?? j?.message; } catch { /* no body */ }
+      return { ok: false, status: res.status, ...(message ? { message } : {}) };
+    }
     const reader = res.body.getReader();
     const dec = new TextDecoder();
     let buf = "", text = "";
@@ -85,10 +81,18 @@ async function callGateway(prompt: string, o: AskOptions) {
       }
     }
     text = text.trim();
-    return text ? { ok: true as const, text } : { ok: false as const, status: 502 };
+    return text ? { ok: true, text } : { ok: false, status: 502, message: "The AI returned no answer" };
   } catch {
-    return { ok: false as const, status: 504 };
+    return { ok: false, status: 504, message: "The AI didn't respond" };
   }
+}
+
+async function callGateway(prompt: string, o: AskOptions) {
+  return streamResponsesText({
+    ...(o.system ? { instructions: o.system } : {}),
+    input: [{ role: "user", content: prompt }],
+    ...(o.maxTokens ? { max_output_tokens: Math.max(o.maxTokens, 600) } : {}),
+  });
 }
 
 export async function askAI(prompt: string, o: AskOptions): Promise<AIResult> {
